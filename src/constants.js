@@ -1,0 +1,1 @@
+export const gameSize = 2;

@@ -1,4 +1,5 @@
 import { Game } from 'boardgame.io/core';
+import { gameSize } from './constants';
 
 // Return true if `cells` is in a winning configuration.
 function IsVictory(cells) {
@@ -34,13 +35,35 @@ function IsDraw(cells) {
 }
 
 export const game = Game({
-  setup: () => ({ cells: Array(9).fill(null) }),
+  setup: () => {
+    const playerColors = [
+      '#7a1',
+      '#17a'
+    ]
+    const playerCells = {
+      '00': 0,
+    }
+    const cells = [];
+    for (let x = -gameSize; x <= gameSize; x++) {
+      for (let y = -gameSize; y <= gameSize; y++) {
+        const z = x + y;
+        if (z >= -gameSize && z <= gameSize) {
+          const coord = `${x}${y}`;
+          cells.push({ x, y, coord, player: playerCells[coord] });
+        }
+      }
+    }
+    console.log(cells);
+    return {
+      cells,
+      playerColors
+    }
+  },
 
   moves: {
-    clickCell(G, ctx, id) {
+    clickCell: (G, ctx, id) => {
       const cells = [...G.cells];
 
-      // Ensure we can't overwrite cells.
       if (cells[id] === null) {
         cells[id] = ctx.currentPlayer;
       }
