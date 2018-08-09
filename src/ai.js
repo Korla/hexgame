@@ -1,13 +1,20 @@
 import { AI } from 'boardgame.io/ai';
+import { isClickable } from './game';
+
+const moveTypes = [
+  'claimNeighbors',
+  'attackX',
+  'attackY',
+  'attackZ',
+];
 
 export const ai = AI({
   enumerate: (G, ctx) => {
-    let moves = [];
-    for (let i = 0; i < 9; i++) {
-      if (G.cells[i] === null) {
-        moves.push({ move: 'clickCell', args: [i] });
-      }
-    }
+    const moves = G.cells
+      .filter(isClickable)
+      .map(cell => [cell])
+      .map(args => moveTypes.map(move => ({ move, args })))
+      .reduce((moves, movesPerCell) => moves.concat(movesPerCell), []);
     return moves;
   },
 });

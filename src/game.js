@@ -1,85 +1,91 @@
 import { Game } from 'boardgame.io/core';
-import { gameSize } from './constants';
+import { gameSize, playerCells, playerColors } from './constants';
 
-// Return true if `cells` is in a winning configuration.
-function IsVictory(cells) {
-  const positions = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
+const areNeighbors = a => b => (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z)) / 2 === 1;
 
-  for (let pos of positions) {
-    const symbol = cells[pos[0]];
-    let winner = symbol;
-    for (let i of pos) {
-      if (cells[i] !== symbol) {
-        winner = null;
-        break;
-      }
+const getCoord = (x, y) => `${x}${y}`;
+
+export const getCell = (x, y, cells) => {
+  const coord = getCoord(x, y);
+  return cells.find(c => c.coord === coord);
+}
+
+export const isClickable = (cell) => cell.hasSelectedNeighbor === true && cell.player === undefined;
+
+const updateSelectedNeighbors = G => {
+  const cells = G.cells.map(c => {
+    const hasSelectedNeighbor = G.cells
+      .filter(n => n.player !== undefined)
+      .filter(areNeighbors(c))
+      .length > 0;
+    return {
+      ...c,
+      hasSelectedNeighbor,
     }
-    if (winner != null) return true;
-  }
+  });
 
-  return false;
+  return {
+    ...G,
+    cells
+  };
 }
 
-// Return true if all `cells` are occupied.
-function IsDraw(cells) {
-  return cells.filter(c => c === null).length === 0;
-}
+const handleMove = (condition) => (G, { currentPlayer }, cell) => {
+  const cells = G.cells
+    .map(c => {
+      if (c === cell) {
+        return {
+          ...c,
+          player: currentPlayer,
+        }
+      }
+      if (c.player === undefined) {
+        return c;
+      }
+      const shouldTurn = condition(cell, c);
+      const player = shouldTurn === true ? currentPlayer : c.player;
+      return {
+        ...c,
+        player,
+      }
+    })
+  return updateSelectedNeighbors({ ...G, cells });
+};
 
 export const game = Game({
   setup: () => {
-    const playerColors = [
-      '#7a1',
-      '#17a'
-    ]
-    const playerCells = {
-      '00': 0,
-    }
     const cells = [];
     for (let x = -gameSize; x <= gameSize; x++) {
       for (let y = -gameSize; y <= gameSize; y++) {
         const z = x + y;
         if (z >= -gameSize && z <= gameSize) {
-          const coord = `${x}${y}`;
-          cells.push({ x, y, coord, player: playerCells[coord] });
+          const coord = getCoord(x, y);
+          cells.push({ x, y, z, coord, player: playerCells[coord] });
         }
       }
     }
-    console.log(cells);
-    return {
-      cells,
-      playerColors
-    }
+
+    return updateSelectedNeighbors({ cells, playerColors });
   },
 
   moves: {
-    clickCell: (G, ctx, id) => {
-      const cells = [...G.cells];
-
-      if (cells[id] === null) {
-        cells[id] = ctx.currentPlayer;
-      }
-
-      return { ...G, cells };
-    },
+    claimNeighbors: handleMove((clicked, cell) => areNeighbors(cell)(clicked)),
+    attackX: handleMove((clicked, cell) => clicked.x === cell.x),
+    attackY: handleMove((clicked, cell) => clicked.y === cell.y),
+    attackZ: handleMove((clicked, cell) => clicked.z === cell.z),
   },
 
   flow: {
     movesPerTurn: 1,
     endGameIf: (G, ctx) => {
-      if (IsVictory(G.cells)) {
-        return { winner: ctx.currentPlayer };
+      if (G.cells.filter(c => c.player === undefined).length !== 0) {
+        return;
       }
-      if (IsDraw(G.cells)) {
-        return { draw: true };
+
+      const firstPlayerScore = G.cells.filter(c => c.player === '0').length;
+
+      return {
+        winner: firstPlayerScore > G.cells.length ? 0 : 1,
       }
     },
   },
