@@ -33,7 +33,7 @@ const updateSelectedNeighbors = G => {
 const handleMove = (condition) => (G, { currentPlayer }, cell) => {
   const cells = G.cells
     .map(c => {
-      if (c === cell) {
+      if (c.coord === cell.coord) {
         return {
           ...c,
           player: currentPlayer,
@@ -53,6 +53,7 @@ const handleMove = (condition) => (G, { currentPlayer }, cell) => {
 };
 
 export const game = Game({
+  name: 'hex',
   setup: () => {
     const cells = [];
     for (let x = -gameSize; x <= gameSize; x++) {

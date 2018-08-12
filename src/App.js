@@ -1,8 +1,13 @@
-import { Client } from 'boardgame.io/react';
-import { game } from './game';
-import { ai } from './ai';
-import { Board } from './board';
+import React from 'react';
+import Client from "./game/Client";
 
-const App = Client({ game, board: Board, ai });
+const style = {
+  display: 'flex',
+};
 
-export default App;
+export const App = () => (
+  <div style={style}>
+    <Client playerID="0"></Client>
+    <Client playerID="1"></Client>
+  </div>
+)

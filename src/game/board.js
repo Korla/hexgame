@@ -4,10 +4,19 @@ import { gameSize } from './constants';
 import { isClickable, getCell } from './game';
 
 const style = {
-  maxWidth: '50%',
-  maxHeight: '50%',
-  padding: '40',
+  display: 'flex',
+  flexDirection: 'column'
 };
+
+const hexStyle = {
+  display: 'flex',
+  flexGrow: 1,
+}
+
+const menuStyle = {
+  display: 'flex',
+  justifyContent: 'spaceAround',
+}
 
 const possibleMoves = [
   {
@@ -96,12 +105,12 @@ export class Board extends React.Component {
       null;
 
     return (
-      <div>
-        <HexGrid levels={gameSize} outline={true} onClick={this.onCellClick} style={style}>
+      <div style={style}>
+        <HexGrid levels={gameSize} outline={true} onClick={this.onCellClick} style={hexStyle}>
           {tokens}
         </HexGrid>
         {winner}
-        <div>
+        <div style={menuStyle}>
           {
             possibleMoves.map((m, i) => (
               <span key={i} onClick={() => this.onMoveClick(i)} style={getMoveStyle(i === this.state.selectedMove)}>
