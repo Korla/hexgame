@@ -1,93 +1,53 @@
 import { Game } from 'boardgame.io/core';
-import { gameSize, playerCells, playerColors } from './constants';
+import { playerColors } from './constants';
+import { moves } from './moves';
 
-const areNeighbors = a => b => (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z)) / 2 === 1;
+export const getCoord = ({ x, y, z }) => `${x},${y},${z}`;
 
-const getCoord = (x, y) => `${x}${y}`;
+export const getNeighboors = ({ x, y, z }) => [
+  [1, -1, 0],
+  [1, 0, -1],
+  [0, 1, -1],
+  [0, -1, 1],
+  [-1, 1, 0],
+  [-1, 0, 1],
+]
+  .map(([dx, dy, dz]) => [x + dx, y + dy, z + dz])
+  .map(([x, y, z]) => ({ x, y, z, coord: getCoord({ x, y, z }) }));
 
-export const getCell = (x, y, cells) => {
-  const coord = getCoord(x, y);
-  return cells.find(c => c.coord === coord);
-}
+const isAvailable = G => ({ coord }) => G.cells.find(c => c.coord === coord) === undefined;
 
-export const isClickable = (cell) => cell.hasSelectedNeighbor === true && cell.player === undefined;
-
-const updateSelectedNeighbors = G => {
-  const cells = G.cells.map(c => {
-    const hasSelectedNeighbor = G.cells
-      .filter(n => n.player !== undefined)
-      .filter(areNeighbors(c))
-      .length > 0;
-    return {
-      ...c,
-      hasSelectedNeighbor,
-    }
-  });
-
-  return {
-    ...G,
-    cells
-  };
-}
-
-const handleMove = (condition) => (G, { currentPlayer }, cell) => {
-  const cells = G.cells
-    .map(c => {
-      if (c.coord === cell.coord) {
-        return {
-          ...c,
-          player: currentPlayer,
-        }
-      }
-      if (c.player === undefined) {
-        return c;
-      }
-      const shouldTurn = condition(cell, c);
-      const player = shouldTurn === true ? currentPlayer : c.player;
-      return {
-        ...c,
-        player,
-      }
-    })
-  return updateSelectedNeighbors({ ...G, cells });
+const assignClickableCell = (prev, iCoord) => {
+  prev[iCoord.coord] = iCoord;
+  return prev;
 };
+
+export const setClickableCells = iCoord => G => {
+  const neighboors = getNeighboors(iCoord);
+  const nonSelectedNeighboors = neighboors
+    .filter(isAvailable(G));
+  const clickableCells = nonSelectedNeighboors.reduce(assignClickableCell, { ...G.clickableCells });
+  delete clickableCells[getCoord(iCoord)];
+
+  return { ...G, clickableCells };
+}
 
 export const game = Game({
   name: 'hex',
   setup: () => {
-    const cells = [];
-    for (let x = -gameSize; x <= gameSize; x++) {
-      for (let y = -gameSize; y <= gameSize; y++) {
-        const z = x + y;
-        if (z >= -gameSize && z <= gameSize) {
-          const coord = getCoord(x, y);
-          cells.push({ x, y, z, coord, player: playerCells[coord] });
-        }
-      }
-    }
-
-    return updateSelectedNeighbors({ cells, playerColors });
+    const [x, y, z] = [0, 0, 0];
+    const cells = [{ x, y, z, coord: getCoord({ x, y, z }), player: '1' }];
+    return setClickableCells(cells[0])({ cells, playerColors, levels: 2, clickableCells: {} });
   },
 
-  moves: {
-    claimNeighbors: handleMove((clicked, cell) => areNeighbors(cell)(clicked)),
-    attackX: handleMove((clicked, cell) => clicked.x === cell.x),
-    attackY: handleMove((clicked, cell) => clicked.y === cell.y),
-    attackZ: handleMove((clicked, cell) => clicked.z === cell.z),
-  },
+  moves,
 
   flow: {
     movesPerTurn: 1,
     endGameIf: (G, ctx) => {
-      if (G.cells.filter(c => c.player === undefined).length !== 0) {
-        return;
-      }
-
-      const firstPlayerScore = G.cells.filter(c => c.player === '0').length;
-
-      return {
-        winner: firstPlayerScore > G.cells.length ? 0 : 1,
-      }
+      return ['0', '1']
+        .map(player => ({ player, score: G.cells.filter(c => c.player === player).length }))
+        .filter(p => p.score >= 30)[0];
     },
   },
 });

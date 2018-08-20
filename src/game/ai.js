@@ -1,5 +1,4 @@
 import { AI } from 'boardgame.io/ai';
-import { isClickable } from './game';
 
 const moveTypes = [
   'claimNeighbors',
@@ -10,9 +9,9 @@ const moveTypes = [
 
 export const ai = AI({
   enumerate: (G, ctx) => {
-    const moves = G.cells
-      .filter(isClickable)
-      .map(cell => [cell])
+    const moves = Object.keys(G.clickableCells)
+      .map(coord => G.clickableCells[coord])
+      .map(iCoord => [iCoord])
       .map(args => moveTypes.map(move => ({ move, args })))
       .reduce((moves, movesPerCell) => moves.concat(movesPerCell), []);
     return moves;

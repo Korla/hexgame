@@ -7,6 +7,6 @@ export default Client({
   game,
   board: Board,
   ai,
-  multiplayer: { server: 'localhost:8000' },
-  debug: false,
+  // multiplayer: { server: 'localhost:8000' },
+  // debug: false,
 });

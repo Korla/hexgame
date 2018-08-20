@@ -1,7 +1,6 @@
 import React from 'react';
-import { HexGrid, Token } from 'boardgame.io/ui';
-import { gameSize } from './constants';
-import { isClickable, getCell } from './game';
+import { HexGrid } from 'boardgame.io/ui';
+import { getCoord } from './game';
 
 const style = {
   display: 'flex',
@@ -11,6 +10,7 @@ const style = {
 const hexStyle = {
   display: 'flex',
   flexGrow: 1,
+  width: 500,
 }
 
 const menuStyle = {
@@ -51,17 +51,17 @@ export class Board extends React.Component {
     this.props = props;
     this.state = {
       selectedMove: 0
-    }
+    };
     this.onCellClick = this.onCellClick.bind(this);
     this.onMoveClick = this.onMoveClick.bind(this);
     this.render = this.render.bind(this);
   }
 
-  onCellClick({ x, y }) {
-    const cell = getCell(x, y, this.props.G.cells);
-    if (isClickable(cell)) {
-      this.props.moves[possibleMoves[this.state.selectedMove].move](cell);
+  onCellClick(iCoord) {
+    if (this.props.G.clickableCells[getCoord(iCoord)] === undefined) {
+      return;
     }
+    this.props.moves[possibleMoves[this.state.selectedMove].move](iCoord);
   }
 
   onMoveClick(id) {
@@ -69,35 +69,22 @@ export class Board extends React.Component {
   }
 
   render() {
-    const tokens = [
-      ...this.props.G.cells
-        .filter(({ player }) => player !== undefined)
-        .map(({ x, y, coord, player }) => (
-          <Token
-            key={coord}
-            x={x}
-            y={y}
-            z={-x - y}
-            style={{ fill: this.props.G.playerColors[player] }}
-          />
-        )),
-      ...this.props.G.cells
-        .filter(isClickable)
-        .map(({ x, y, coord }) => (
-          <Token
-            key={coord}
-            x={x}
-            y={y}
-            z={-x - y}
-            style={{ fill: '#ddd' }}
-          />
-        ))
-    ];
+    const neighboorCells = Object.keys(this.props.G.clickableCells)
+      .reduce((prev, curr) => {
+        prev[curr] = '#ddd';
+        return prev;
+      }, {});
+    const colorMap = this.props.G.cells
+      .reduce((prev, { x, y, z, player }) => {
+        const coord = getCoord({ x, y, z });
+        prev[coord] = this.props.G.playerColors[player];
+        return prev;
+      }, neighboorCells);
 
     const winner = this.props.ctx.gameover ?
-      this.props.ctx.gameover.winner !== undefined ?
+      this.props.ctx.gameover.player !== undefined ?
         (
-          <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
+          <div id="winner">Winner: {this.props.ctx.gameover.player}</div>
         ) :
         (
           <div id="winner">Draw!</div>
@@ -106,9 +93,7 @@ export class Board extends React.Component {
 
     return (
       <div style={style}>
-        <HexGrid levels={gameSize} outline={true} onClick={this.onCellClick} style={hexStyle}>
-          {tokens}
-        </HexGrid>
+        <HexGrid levels={this.props.G.levels} outline={true} onClick={this.onCellClick} style={hexStyle} colorMap={colorMap}></HexGrid>
         {winner}
         <div style={menuStyle}>
           {
