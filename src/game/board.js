@@ -95,6 +95,7 @@ export class Board extends React.Component {
       <div style={style}>
         <HexGrid levels={this.props.G.levels} outline={true} onClick={this.onCellClick} style={hexStyle} colorMap={colorMap}></HexGrid>
         {winner}
+        <div>Player: {this.props.ctx.currentPlayer}</div>
         <div style={menuStyle}>
           {
             possibleMoves.map((m, i) => (
