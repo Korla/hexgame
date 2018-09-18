@@ -2,6 +2,7 @@ import React from 'react';
 import { HexGrid } from 'boardgame.io/ui';
 import { createPoint, isSame } from './utils';
 import { Token } from 'boardgame.io/dist/ui';
+import { Insect } from './Insect';
 
 const style = {
   display: 'flex',
@@ -36,11 +37,16 @@ export class Board extends React.Component {
       <div style={style}>
         <HexGrid
           levels={this.props.G.grid.levels}
-          outline={true}
           style={hexStyle}
           colorMap={this.props.G.grid.colorMap}
           onClick={this.cellClicked}>
-          <Token x={0} y={0} z={0}><span>Test</span></Token>
+          {
+            this.props.G.insects.map(({ point: { x, y, z }, type }, i) =>
+              <Token x={x} y={y} z={z} key={i}>
+                <Insect type={type} />
+              </Token>
+            )
+          }
         </HexGrid>
         <div>
           <div>Player: {player.id}</div>
