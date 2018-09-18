@@ -8,7 +8,5 @@ const style = {
 export const App = () => (
   <div style={style}>
     <Client></Client>
-    {/* <Client playerID="0"></Client> */}
-    {/* <Client playerID="1"></Client> */}
   </div>
 )

@@ -1,6 +1,7 @@
 import React from 'react';
 import { HexGrid } from 'boardgame.io/ui';
-import { getCoord } from './game';
+import { createPoint, isSame } from './utils';
+import { Token } from 'boardgame.io/dist/ui';
 
 const style = {
   display: 'flex',
@@ -13,98 +14,46 @@ const hexStyle = {
   width: 500,
 }
 
-const menuStyle = {
-  display: 'flex',
-  justifyContent: 'spaceAround',
-}
-
-const possibleMoves = [
-  {
-    text: 'Claim neighbors',
-    move: 'claimNeighbors',
-  },
-  {
-    text: 'Attack x',
-    move: 'attackX',
-  },
-  {
-    text: 'Attack y',
-    move: 'attackY',
-  },
-  {
-    text: 'Attack z',
-    move: 'attackZ',
-  },
-];
-
-const getMoveStyle = (isSelected) => ({
-  padding: 10,
-  marginLeft: 10,
-  border: '1px solid black',
-  cursor: 'pointer',
-  backgroundColor: isSelected ? '#ddd' : 'inherit',
-})
-
 export class Board extends React.Component {
   constructor(props) {
     super();
     this.props = props;
-    this.state = {
-      selectedMove: 0
-    };
-    this.onCellClick = this.onCellClick.bind(this);
-    this.onMoveClick = this.onMoveClick.bind(this);
     this.render = this.render.bind(this);
+    this.cellClicked = this.cellClicked.bind(this);
   }
 
-  onCellClick(iCoord) {
-    if (this.props.G.clickableCells[getCoord(iCoord)] === undefined) {
-      return;
+  cellClicked({ x, y, z }) {
+    const point = createPoint(x, y, z);
+    const found = this.props.G.availablePoints.find(isSame(point));
+    if (found !== undefined) {
+      this.props.moves.moveInsect(found);
     }
-    this.props.moves[possibleMoves[this.state.selectedMove].move](iCoord);
-  }
-
-  onMoveClick(id) {
-    this.setState({ selectedMove: id });
   }
 
   render() {
-    const neighboorCells = Object.keys(this.props.G.clickableCells)
-      .reduce((prev, curr) => {
-        prev[curr] = '#ddd';
-        return prev;
-      }, {});
-    const colorMap = this.props.G.cells
-      .reduce((prev, { x, y, z, player }) => {
-        const coord = getCoord({ x, y, z });
-        prev[coord] = this.props.G.playerColors[player];
-        return prev;
-      }, neighboorCells);
-
-    const winner = this.props.ctx.gameover ?
-      this.props.ctx.gameover.player !== undefined ?
-        (
-          <div id="winner">Winner: {this.props.ctx.gameover.player}</div>
-        ) :
-        (
-          <div id="winner">Draw!</div>
-        ) :
-      null;
-
+    const player = this.props.G.players[this.props.ctx.currentPlayer];
     return (
       <div style={style}>
-        <HexGrid levels={this.props.G.levels} outline={true} onClick={this.onCellClick} style={hexStyle} colorMap={colorMap}></HexGrid>
-        {winner}
-        <div>Player: {this.props.ctx.currentPlayer}</div>
-        <div style={menuStyle}>
-          {
-            possibleMoves.map((m, i) => (
-              <span key={i} onClick={() => this.onMoveClick(i)} style={getMoveStyle(i === this.state.selectedMove)}>
-                {m.text}
-              </span>
-            ))
-          }
+        <HexGrid
+          levels={this.props.G.grid.levels}
+          outline={true}
+          style={hexStyle}
+          colorMap={this.props.G.grid.colorMap}
+          onClick={this.cellClicked}>
+          <Token x={0} y={0} z={0}><span>Test</span></Token>
+        </HexGrid>
+        <div>
+          <div>Player: {player.id}</div>
+          {player.insects.map((insect, i) => {
+            const isCurrentPlayer = player.id === this.props.ctx.currentPlayer;
+
+            return isCurrentPlayer ?
+              <div onClick={() => this.props.moves.selectNew(insect)} key={i}>{insect.type}</div> :
+              <div key={i}>{insect.type}</div>;
+          })}
         </div>
+        <div>phase: {this.props.ctx.phase}</div>
+        <button onClick={this.props.moves.cancel}>Cancel</button>
       </div>
     );
   }
