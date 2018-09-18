@@ -24,10 +24,18 @@ export class Board extends React.Component {
   }
 
   cellClicked({ x, y, z }) {
+    const phase = this.props.ctx.phase;
     const point = createPoint(x, y, z);
-    const found = this.props.G.availablePoints.find(isSame(point));
-    if (found !== undefined) {
-      this.props.moves.moveInsect(found);
+    if (phase === 'selectInsect') {
+      const found = this.props.G.insects.find((insect) => isSame(point)(insect.point));
+      if (found && found.player === this.props.ctx.currentPlayer) {
+        this.props.moves.selectOld(found);
+      }
+    } else if (phase === 'moveInsect') {
+      const found = this.props.G.availablePoints.find(isSame(point));
+      if (found !== undefined) {
+        this.props.moves.moveInsect(found);
+      }
     }
   }
 

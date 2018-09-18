@@ -5,6 +5,7 @@ const setColorMap = G => {
   const colorMap = [
     ...G.availablePoints.map(({ coord }) => ({ coord, color: '#ccc' })),
     ...G.insects.map(({ player, point: { coord } }) => ({ coord, color: playerColors[player] })),
+    ...(G.currentInsect && G.currentInsect.point ? [{ coord: G.currentInsect.point.coord, color: '#777' }] : []),
   ]
     .reduce((colorMap, { coord, color }) => {
       colorMap[coord] = color;
@@ -58,6 +59,23 @@ export const moves = {
       availablePoints,
     });
   },
+  selectOld: (G, ctx, currentInsect) => {
+    const type = currentInsect.type;
+    let availablePoints = [];
+    if (type === 'ant') {
+      // neighbors of (all insects - current insect) - all insects
+      const possiblePoints = flat(G.insects
+        .filter(i => i !== currentInsect)
+        .map(({ point: { x, y, z } }) => getNeighbors(x, y, z)));
+      const excludedPoints = G.insects.map(i => i.point);
+      availablePoints = possiblePoints.filter(possible => excludedPoints.every(excluded => excluded.coord !== possible.coord));
+    }
+    return postProcess({
+      ...G,
+      currentInsect,
+      availablePoints,
+    });
+  },
   moveInsect: (G, ctx, point) => {
     const insect = {
       ...G.currentInsect,
@@ -83,8 +101,8 @@ export const moves = {
   cancel: G => {
     return postProcess({
       ...G,
-      availablePoints: [],
       currentInsect: null,
+      availablePoints: [],
     });
   },
 };

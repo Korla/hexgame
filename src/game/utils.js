@@ -18,3 +18,8 @@ export const getNeighbors = (...pos) => {
     .map(([dx, dy, dz]) => [x + dx, y + dy, z + dz])
     .map(p => createPoint(...p));
 }
+
+const areNeighbors = (p1, { point: { x, y, z } }) => {
+  const neighbors = getNeighbors(x, y, z);
+  return neighbors.some(p => p.coords = p1.coords);
+}
