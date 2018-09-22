@@ -1,6 +1,6 @@
 import { Client } from 'boardgame.io/react';
 import { game } from './game';
-import { Board } from './board';
+import { Board } from './ui/Board';
 
 export default Client({
   game,

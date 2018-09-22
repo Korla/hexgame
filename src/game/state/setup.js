@@ -1,13 +1,12 @@
+let insectId = 0;
+const createInsect = type => ({
+  type,
+  id: insectId++,
+})
 const createInsects = () => [
-  {
-    type: 'ant',
-  },
-  {
-    type: 'ant',
-  },
-  {
-    type: 'queen',
-  },
+  createInsect('ant'),
+  createInsect('ant'),
+  createInsect('queen'),
 ];
 
 const createPlayer = id => ({

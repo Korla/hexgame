@@ -1,6 +1,6 @@
 import React from 'react';
 import { HexGrid } from 'boardgame.io/ui';
-import { createPoint, isSame } from './utils';
+import { createPoint, isSame } from '../utils';
 import { Token } from 'boardgame.io/dist/ui';
 import { Insect } from './Insect';
 

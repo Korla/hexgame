@@ -82,7 +82,10 @@ export const moves = {
       point,
       player: ctx.currentPlayer,
     };
-    const insects = [...G.insects, insect];
+    const insects = [
+      ...G.insects.filter(({ id }) => id !== G.currentInsect.id),
+      insect,
+    ];
     const players = G.players.map(p => ({
       ...p,
       insects: p.id === ctx.currentPlayer ?
