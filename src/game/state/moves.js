@@ -1,4 +1,4 @@
-import { createPoint, getNeighbors, areAllConnected } from '../utils';
+import { createPoint, getNeighbors, areAllConnected, union, subtract } from '../utils';
 import { playerColors } from '../constants';
 
 const setColorMap = G => {
@@ -78,13 +78,20 @@ export const moves = {
   selectOld: (G, ctx, currentInsect) => {
     const type = currentInsect.type;
     let availablePoints = [];
+    const allInsectsPoints = G.insects.map(({ point }) => point);
     if (type === 'ant') {
       // neighbors of (all insects - current insect) - all insects
       const possiblePoints = flat(G.insects
         .filter(i => i !== currentInsect)
         .map(({ point: { x, y, z } }) => getNeighbors(x, y, z)));
-      const excludedPoints = G.insects.map(i => i.point);
-      availablePoints = possiblePoints.filter(possible => excludedPoints.every(excluded => excluded.coord !== possible.coord));
+      availablePoints = possiblePoints.filter(possible => allInsectsPoints.every(excluded => excluded.coord !== possible.coord));
+    } else if (type === 'queen') {
+      // Own neighboring points union neighbors of neighboring insects - neighboring insects
+      const { x, y, z } = currentInsect.point;
+      const ownNeighboringPoints = getNeighbors(x, y, z);
+      const neighboringInsectPoints = union(ownNeighboringPoints, allInsectsPoints);
+      const neighborsOfNeighbors = flat(neighboringInsectPoints.map(({ x, y, z }) => getNeighbors(x, y, z)));
+      availablePoints = subtract(union(ownNeighboringPoints, neighborsOfNeighbors), neighboringInsectPoints);
     }
     return postProcess({
       ...G,
