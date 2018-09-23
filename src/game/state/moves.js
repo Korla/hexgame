@@ -1,5 +1,8 @@
-import { createPoint, getNeighbors, areAllConnected, union, subtract } from '../utils';
+import { createPoint, getNeighbors, areAllConnected, isSame } from '../utils';
 import { playerColors } from '../constants';
+import { setUtilsFactory } from '../setUtils';
+
+const { union, subtract } = setUtilsFactory(isSame);
 
 const setColorMap = G => {
   const colorMap = [

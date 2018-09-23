@@ -5,14 +5,6 @@ export const createPoint = (...pos) => {
 
 export const isSame = p1 => p2 => p1.coord === p2.coord;
 
-const isInSet = set => point => set.some(isSame(point));
-
-const isNotInSet = set => point => !set.some(isSame(point));
-
-export const union = (...sets) => sets.reduce((union, set) => union.filter(isInSet(set)));
-
-export const subtract = (...sets) => sets.reduce((difference, set) => difference.filter(isNotInSet(set)));
-
 export const getNeighbors = (...pos) => {
   const [x, y, z] = pos;
   return [
