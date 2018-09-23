@@ -1,6 +1,6 @@
-const isInSetFactory = comparator => set => point => set.some(comparator(point));
+const isInSetFactory = comparator => set => element => set.some(comparator(element));
 
-const isNotInSetFactory = comparator => set => point => !set.some(comparator(point));
+const isNotInSetFactory = comparator => set => element => !set.some(comparator(element));
 
 const unionFactory = comparator => {
   const isInSet = isInSetFactory(comparator);
