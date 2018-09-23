@@ -28,7 +28,7 @@ export class Board extends React.Component {
     const point = createPoint(x, y, z);
     if (phase === 'selectInsect') {
       const found = this.props.G.insects.find((insect) => isSame(point)(insect.point));
-      if (found && found.player === this.props.ctx.currentPlayer) {
+      if (found && found.player === this.props.ctx.currentPlayer && found.isMovable === true) {
         this.props.moves.selectOld(found);
       }
     } else if (phase === 'moveInsect') {
