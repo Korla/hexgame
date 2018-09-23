@@ -1,4 +1,4 @@
-import { createPoint, getNeighbors } from '../utils';
+import { createPoint, getNeighbors, areAllConnected } from '../utils';
 import { playerColors } from '../constants';
 
 const setColorMap = G => {
@@ -31,9 +31,25 @@ const setGridSize = G => {
   }
 }
 
+const setMoveable = G => {
+  const insectPoints = G.insects.map(({ point }) => point);
+  return {
+    ...G,
+    insects: G.insects.map(insect => ({
+      ...insect,
+      isMovable: areAllConnected(insectPoints.filter(i => i !== insect.point)),
+    })),
+  }
+}
+
+// const log = G => {
+//   console.log('salmon', JSON.stringify(G.insects.map(({ point }) => point)));
+//   return G;
+// }
+
 const chain = (...fns) => res => fns.reduce((res, fn) => fn(res), res);
 
-const postProcess = chain(setColorMap, setGridSize);
+const postProcess = chain(setColorMap, setGridSize, setMoveable);
 
 const flat = array => array.reduce((prev, curr) => prev.concat(curr), []);
 

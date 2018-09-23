@@ -19,7 +19,22 @@ export const getNeighbors = (...pos) => {
     .map(p => createPoint(...p));
 }
 
-const areNeighbors = (p1, { point: { x, y, z } }) => {
-  const neighbors = getNeighbors(x, y, z);
-  return neighbors.some(p => p.coords = p1.coords);
+const areNeighbors = points => {
+  const allNeighbors = points.reduce((allNeighbors, { x, y, z }) => [
+    ...allNeighbors,
+    ...getNeighbors(x, y, z),
+  ], []);
+  return possible => allNeighbors.some(isSame(possible));
+}
+
+const isContained = list => point => !list.some(isSame(point));
+
+export const areAllConnected = points => {
+  points = [...points];
+  let current = points.splice(0, 1);
+  while (points.length > 0 && current.length > 0) {
+    current = points.filter(areNeighbors(current));
+    points = points.filter(isContained(current));
+  }
+  return points.length === 0;
 }

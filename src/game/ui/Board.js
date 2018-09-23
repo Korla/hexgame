@@ -49,11 +49,12 @@ export class Board extends React.Component {
           colorMap={this.props.G.grid.colorMap}
           onClick={this.cellClicked}>
           {
-            this.props.G.insects.map(({ point: { x, y, z }, type }, i) =>
-              <Token x={x} y={y} z={z} key={i}>
-                <Insect type={type} />
+            this.props.G.insects.map((insect, i) => {
+              const {x, y, z} = insect.point;
+              return <Token x={x} y={y} z={z} key={i}>
+                <Insect insect={insect} />
               </Token>
-            )
+            })
           }
         </HexGrid>
         <div>

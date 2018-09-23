@@ -13,7 +13,7 @@ export class Insect extends React.Component {
   }
 
   render() {
-    const { type } = this.props;
+    const { insect: { type, isMovable } } = this.props;
     return (
       <g transform="scale(.022222,.022222)">
         <g>
@@ -21,7 +21,7 @@ export class Insect extends React.Component {
             d="M -10,-10 L -10,10 L 10,10 L 10,-10 Z"
             style={{
               fill: insectColors[type],
-              stroke: 'black',
+              stroke: isMovable ? 'black' : 'grey',
             }}
           />
         </g>
