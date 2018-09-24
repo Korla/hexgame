@@ -34,13 +34,24 @@ const setGridSize = G => {
   }
 }
 
-const setMoveable = G => {
+const setMoveableAndClickable = G => {
   const insectPoints = G.insects.map(({ point }) => point);
+  const playersHavePlacedQueen = G.insects.reduce((playersHavePlacedQueen, { player, type }) => {
+    playersHavePlacedQueen[player] = playersHavePlacedQueen[player] || type === 'queen';
+    return playersHavePlacedQueen;
+  }, [0, 0]);
   return {
     ...G,
     insects: G.insects.map(insect => ({
       ...insect,
-      isMovable: areAllConnected(insectPoints.filter(i => i !== insect.point)),
+      isMovable: playersHavePlacedQueen[insect.player] && areAllConnected(insectPoints.filter(i => i !== insect.point)),
+    })),
+    players: G.players.map(player => ({
+      ...player,
+      insects: player.insects.map(insect => ({
+        ...insect,
+        isClickable: playersHavePlacedQueen[insect.player] || player.moveCount !== 3 || insect.type === 'queen',
+      })),
     })),
   }
 }
@@ -52,7 +63,7 @@ const setMoveable = G => {
 
 const chain = (...fns) => res => fns.reduce((res, fn) => fn(res), res);
 
-const postProcess = chain(setColorMap, setGridSize, setMoveable);
+const postProcess = chain(setColorMap, setGridSize, setMoveableAndClickable);
 
 const flat = array => array.reduce((prev, curr) => prev.concat(curr), []);
 
@@ -83,13 +94,12 @@ export const moves = {
     let availablePoints = [];
     const allInsectsPoints = G.insects.map(({ point }) => point);
     if (type === 'ant') {
-      // neighbors of (all insects - current insect) - all insects
-      const possiblePoints = flat(G.insects
-        .filter(i => i !== currentInsect)
-        .map(({ point: { x, y, z } }) => getNeighbors(x, y, z)));
-      availablePoints = possiblePoints.filter(possible => allInsectsPoints.every(excluded => excluded.coord !== possible.coord));
+      // Neighbors of (all insects - current insect) - all insects
+      const allButSelf = subtract(allInsectsPoints, [currentInsect.point]);
+      const neighborsOfAllButSelf = flat(allButSelf.map(({ x, y, z }) => getNeighbors(x, y, z)));
+      availablePoints = subtract(neighborsOfAllButSelf, allInsectsPoints);
     } else if (type === 'queen') {
-      // Own neighboring points union neighbors of neighboring insects - neighboring insects
+      // Own neighbors union neighbors of neighboring insects - neighboring insects
       const { x, y, z } = currentInsect.point;
       const ownNeighboringPoints = getNeighbors(x, y, z);
       const neighboringInsectPoints = union(ownNeighboringPoints, allInsectsPoints);
@@ -114,9 +124,8 @@ export const moves = {
     ];
     const players = G.players.map(p => ({
       ...p,
-      insects: p.id === ctx.currentPlayer ?
-        p.insects.filter(i => i !== G.currentInsect) :
-        p.insects,
+      insects: p.insects.filter(({ id }) => id !== G.currentInsect.id),
+      moveCount: p.id === ctx.currentPlayer ? p.moveCount + 1 : p.moveCount,
     }));
     return postProcess({
       ...G,

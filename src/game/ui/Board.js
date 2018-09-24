@@ -15,6 +15,20 @@ const hexStyle = {
   width: 500,
 }
 
+const styles = {
+  moves: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  move: {
+    padding: 5,
+    border: '1px solid black',
+  },
+  clickableMove: {
+    cursor: 'pointer',
+  }
+}
+
 export class Board extends React.Component {
   constructor(props) {
     super();
@@ -50,7 +64,7 @@ export class Board extends React.Component {
           onClick={this.cellClicked}>
           {
             this.props.G.insects.map((insect, i) => {
-              const {x, y, z} = insect.point;
+              const { x, y, z } = insect.point;
               return <Token x={x} y={y} z={z} key={i}>
                 <Insect insect={insect} />
               </Token>
@@ -59,13 +73,13 @@ export class Board extends React.Component {
         </HexGrid>
         <div>
           <div>Player: {player.id}</div>
-          {player.insects.map((insect, i) => {
-            const isCurrentPlayer = player.id === this.props.ctx.currentPlayer;
-
-            return isCurrentPlayer ?
-              <div onClick={() => this.props.moves.selectNew(insect)} key={i}>{insect.type}</div> :
-              <div key={i}>{insect.type}</div>;
-          })}
+          <div style={styles.moves}>
+            {player.insects.map((insect, i) => {
+              return insect.isClickable ?
+                <div style={{ ...styles.move, ...styles.clickableMove }} onClick={() => this.props.moves.selectNew(insect)} key={i}>{insect.type}</div> :
+                <div style={styles.move} key={i}>{insect.type}</div>;
+            })}
+          </div>
         </div>
         <div>phase: {this.props.ctx.phase}</div>
         <button onClick={this.props.moves.cancel}>Cancel</button>
