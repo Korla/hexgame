@@ -30,4 +30,5 @@ export const setup = () => ({
   availablePoints: [],
   insects: [],
   moveCount: 0,
+  gameover: null,
 });

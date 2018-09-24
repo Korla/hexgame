@@ -1,6 +1,7 @@
 import { Game } from 'boardgame.io/core';
 import { moves } from './state/moves';
 import { setup } from './state/setup';
+import { postProcess } from './state/postProcess';
 
 export const game = Game({
   name: 'the hive',
@@ -20,5 +21,7 @@ export const game = Game({
       },
     ],
     endTurnIf: (G, ctx) => G.moveCount > ctx.turn,
+    endGameIf: (G, ctx) => G.gameover !== null ? G.gameover : undefined,
+    onMove: (G, ctx) => postProcess(G),
   },
 });
