@@ -1,7 +1,5 @@
-import { createPoint, getNeighbors, isSame } from '../utils';
-import { setUtilsFactory } from '../setUtils';
-
-const { union, subtract } = setUtilsFactory(isSame);
+import { createPoint, getNeighbors } from '../utils';
+import { availablePointsForInsect } from './availablePointsForInsect';
 
 const flat = array => array.reduce((prev, curr) => prev.concat(curr), []);
 
@@ -28,22 +26,7 @@ export const moves = {
     };
   },
   selectOld: (G, ctx, currentInsect) => {
-    const type = currentInsect.type;
-    let availablePoints = [];
-    const allInsectsPoints = G.insects.map(({ point }) => point);
-    if (type === 'ant') {
-      // Neighbors of (all insects - current insect) - all insects
-      const allButSelf = subtract(allInsectsPoints, [currentInsect.point]);
-      const neighborsOfAllButSelf = flat(allButSelf.map(({ x, y, z }) => getNeighbors(x, y, z)));
-      availablePoints = subtract(neighborsOfAllButSelf, allInsectsPoints);
-    } else if (type === 'queen') {
-      // Own neighbors union neighbors of neighboring insects - neighboring insects
-      const { x, y, z } = currentInsect.point;
-      const ownNeighboringPoints = getNeighbors(x, y, z);
-      const neighboringInsectPoints = union(ownNeighboringPoints, allInsectsPoints);
-      const neighborsOfNeighbors = flat(neighboringInsectPoints.map(({ x, y, z }) => getNeighbors(x, y, z)));
-      availablePoints = subtract(union(ownNeighboringPoints, neighborsOfNeighbors), neighboringInsectPoints);
-    }
+    const availablePoints = availablePointsForInsect[currentInsect.type]({ G, currentInsect });
     return {
       ...G,
       currentInsect,
