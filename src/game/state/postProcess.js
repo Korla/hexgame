@@ -36,10 +36,7 @@ const setGridSize = G => {
 
 const setMoveableAndClickable = G => {
   const insectPoints = G.insects.map(({ point }) => point);
-  const playersHavePlacedQueen = G.insects.reduce((playersHavePlacedQueen, { player, type }) => {
-    playersHavePlacedQueen[player] = playersHavePlacedQueen[player] || type === 'queen';
-    return playersHavePlacedQueen;
-  }, [0, 0]);
+  const playersHavePlacedQueen = G.players.map(({ insects }) => insects.find(({ type }) => type === 'queen') === undefined);
   return {
     ...G,
     insects: G.insects.map(insect => ({
@@ -50,7 +47,7 @@ const setMoveableAndClickable = G => {
       ...player,
       insects: player.insects.map(insect => ({
         ...insect,
-        isClickable: playersHavePlacedQueen[insect.player] || player.moveCount !== 3 || insect.type === 'queen',
+        isClickable: playersHavePlacedQueen[player.id] || player.moveCount !== 3 || insect.type === 'queen',
       })),
     })),
   }
