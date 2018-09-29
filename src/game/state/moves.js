@@ -9,12 +9,12 @@ export const moves = {
     if (G.insects.length === 0) { // first insect first player
       availablePoints = [createPoint(0, 0, 0)];
     } else if (G.insects.length === 1) { // first insect second player
-      availablePoints = getNeighbors(0, 0, 0);
+      availablePoints = getNeighbors({ x: 0, y: 0, z: 0 });
     } else if (G.insects.length > 1) {
       // neighbors of own insects - neighbors of opponent's insects - insects
-      const possiblePoints = flat(G.insects.filter(({ player }) => player === ctx.currentPlayer).map(({ point: { x, y, z } }) => getNeighbors(x, y, z)));
+      const possiblePoints = flat(G.insects.filter(({ player }) => player === ctx.currentPlayer).map(({ point }) => getNeighbors(point)));
       const excludedPoints = [
-        ...flat(G.insects.filter(({ player }) => player !== ctx.currentPlayer).map(({ point: { x, y, z } }) => getNeighbors(x, y, z))),
+        ...flat(G.insects.filter(({ player }) => player !== ctx.currentPlayer).map(({ point }) => getNeighbors(point))),
         ...G.insects.map(i => i.point),
       ]
       availablePoints = possiblePoints.filter(possible => excludedPoints.every(excluded => excluded.coord !== possible.coord));

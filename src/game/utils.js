@@ -5,8 +5,7 @@ export const createPoint = (...pos) => {
 
 export const isSame = p1 => p2 => p1.coord === p2.coord;
 
-export const getNeighbors = (...pos) => {
-  const [x, y, z] = pos;
+export const getNeighbors = ({ x, y, z }) => {
   return [
     [0, -1, 1],
     [1, -1, 0],
@@ -20,9 +19,9 @@ export const getNeighbors = (...pos) => {
 }
 
 const areNeighbors = points => {
-  const allNeighbors = points.reduce((allNeighbors, { x, y, z }) => [
+  const allNeighbors = points.reduce((allNeighbors, point) => [
     ...allNeighbors,
-    ...getNeighbors(x, y, z),
+    ...getNeighbors(point),
   ], []);
   return possible => allNeighbors.some(isSame(possible));
 }

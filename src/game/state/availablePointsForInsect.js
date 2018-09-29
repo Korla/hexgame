@@ -10,14 +10,13 @@ export const availablePointsForInsect = {
     // Neighbors of (all insects - current insect) - all insects
     const allInsectsPoints = G.insects.map(({ point }) => point);
     const allButSelf = subtract(allInsectsPoints, [currentInsect.point]);
-    const neighborsOfAllButSelf = flat(allButSelf.map(({ x, y, z }) => getNeighbors(x, y, z)));
+    const neighborsOfAllButSelf = flat(allButSelf.map(getNeighbors));
     return subtract(neighborsOfAllButSelf, allInsectsPoints);
   },
   queen: ({ G, currentInsect }) => {
     // Own neighbors union neighbors of neighboring insects - neighboring insects
     const allInsectsPoints = G.insects.map(({ point }) => point);
-    const { x, y, z } = currentInsect.point;
-    let neighbors = getNeighbors(x, y, z).map(point => ({ point, isInsect: !!allInsectsPoints.find(isSame(point)) }));
+    let neighbors = getNeighbors(currentInsect.point).map(point => ({ point, isInsect: !!allInsectsPoints.find(isSame(point)) }));
     neighbors = [
       neighbors[5],
       ...neighbors,
@@ -38,14 +37,6 @@ export const availablePointsForInsect = {
     }
 
     return points;
-
-
-    // const allInsectsPoints = G.insects.map(({ point }) => point);
-    // const { x, y, z } = currentInsect.point;
-    // const ownNeighboringPoints = getNeighbors(x, y, z);
-    // const neighboringInsectPoints = union(ownNeighboringPoints, allInsectsPoints);
-    // const neighborsOfNeighbors = flat(neighboringInsectPoints.map(({ x, y, z }) => getNeighbors(x, y, z)));
-    // return subtract(union(ownNeighboringPoints, neighborsOfNeighbors), neighboringInsectPoints);
   },
   spider: ({ G, currentInsect }) => {
     // Union neighbors and neighbors of neighbors which are insects recursively three times, each time removing insects and the visited
@@ -53,9 +44,9 @@ export const availablePointsForInsect = {
     let currentPoints = [currentInsect.point];
     let visited = currentPoints;
     for (let i = 0; i < 3; i++) {
-      const currentInsectNeighbors = flat(currentPoints.map(({ x, y, z }) => getNeighbors(x, y, z)));
+      const currentInsectNeighbors = flat(currentPoints.map(getNeighbors));
       const neighboringInsects = union(currentInsectNeighbors, allInsectsPoints);
-      const neighborsOfNeighbors = flat(neighboringInsects.map(({ x, y, z }) => getNeighbors(x, y, z)));
+      const neighborsOfNeighbors = flat(neighboringInsects.map(getNeighbors));
       currentPoints = subtract(union(currentInsectNeighbors, neighborsOfNeighbors), allInsectsPoints, visited);
       visited = [...visited, ...currentPoints];
     }

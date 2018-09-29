@@ -60,8 +60,7 @@ const handleGameover = G => {
   const insectPoints = G.insects.map(({ point }) => point);
   const losers = G.insects
     .filter(({ type }) => type === 'queen')
-    .map(({ point, player }) => ({ ...point, player }))
-    .map(({ x, y, z, player }) => ({ player, neighbors: getNeighbors(x, y, z) }))
+    .map(({ point, player }) => ({ player, neighbors: getNeighbors(point) }))
     .filter(({ neighbors }) => subtract(neighbors, insectPoints).length === 0)
     .map(({ player }) => player);
   const gameover = losers.length > 0 ? {
