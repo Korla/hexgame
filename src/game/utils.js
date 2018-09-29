@@ -8,10 +8,10 @@ export const isSame = p1 => p2 => p1.coord === p2.coord;
 export const getNeighbors = (...pos) => {
   const [x, y, z] = pos;
   return [
+    [0, -1, 1],
     [1, -1, 0],
     [1, 0, -1],
     [0, 1, -1],
-    [0, -1, 1],
     [-1, 1, 0],
     [-1, 0, 1],
   ]
