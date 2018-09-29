@@ -1,7 +1,7 @@
-import { getNeighbors, isSame } from '../utils';
+import { getNeighbors, isSame, isNotSame } from '../utils';
 import { setUtilsFactory } from '../setUtils';
 
-const { union, subtract } = setUtilsFactory(isSame);
+const { unique, subtract } = setUtilsFactory(isSame);
 
 const flat = array => array.reduce((prev, curr) => prev.concat(curr), []);
 
@@ -15,9 +15,11 @@ const getNextStep = (currentPoint, allInsectsPoints) => {
   ];
   const points = [];
   for (let i = 1; i <= 6; i++) {
-    const count = [-1, 1].filter(delta => neighbors[i + delta].isInsect).length
-    if (count === 1) {
-      points.push(neighbors[i].point);
+    if (neighbors[i].isInsect === false) {
+      const count = [-1, 1].filter(delta => neighbors[i + delta].isInsect).length
+      if (count === 1) {
+        points.push(neighbors[i].point);
+      }
     }
   }
 
@@ -26,27 +28,37 @@ const getNextStep = (currentPoint, allInsectsPoints) => {
 
 export const availablePointsForInsect = {
   ant: ({ G, currentInsect }) => {
-    // Neighbors of (all insects - current insect) - all insects
-    const allInsectsPoints = G.insects.map(({ point }) => point);
-    const allButSelf = subtract(allInsectsPoints, [currentInsect.point]);
-    const neighborsOfAllButSelf = flat(allButSelf.map(getNeighbors));
-    return subtract(neighborsOfAllButSelf, allInsectsPoints);
+    const allInsectsPoints = G.insects
+      .map(({ point }) => point)
+      .filter(isNotSame(currentInsect.point));
+    let currentPoints = [currentInsect.point];
+    let visited = [];
+    let points = [];
+    while (currentPoints.length) {
+      visited = [...visited, ...currentPoints];
+      const newPoints = unique(flat(currentPoints.map(point => getNextStep(point, allInsectsPoints))));
+      currentPoints = subtract(newPoints, visited);
+      points = [
+        ...points,
+        ...currentPoints,
+      ];
+    }
+    return points;
   },
   queen: ({ G, currentInsect }) => {
     const allInsectsPoints = G.insects.map(({ point }) => point);
     return getNextStep(currentInsect.point, allInsectsPoints);
   },
   spider: ({ G, currentInsect }) => {
-    // Union neighbors and neighbors of neighbors which are insects recursively three times, each time removing insects and the visited
-    const allInsectsPoints = G.insects.map(({ point }) => point);
+    const allInsectsPoints = G.insects
+      .map(({ point }) => point)
+      .filter(isNotSame(currentInsect.point));
     let currentPoints = [currentInsect.point];
-    let visited = currentPoints;
+    let visited = [];
     for (let i = 0; i < 3; i++) {
-      const currentInsectNeighbors = flat(currentPoints.map(getNeighbors));
-      const neighboringInsects = union(currentInsectNeighbors, allInsectsPoints);
-      const neighborsOfNeighbors = flat(neighboringInsects.map(getNeighbors));
-      currentPoints = subtract(union(currentInsectNeighbors, neighborsOfNeighbors), allInsectsPoints, visited);
       visited = [...visited, ...currentPoints];
+      const newPoints = flat(currentPoints.map(point => getNextStep(point, allInsectsPoints)));
+      currentPoints = subtract(newPoints, visited);
     }
     return currentPoints;
   }

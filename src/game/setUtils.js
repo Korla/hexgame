@@ -12,7 +12,10 @@ const subtractFactory = comparator => {
   return (...sets) => sets.reduce((difference, set) => difference.filter(isNotInSet(set)));
 };
 
+const uniqueFactory = comparator => set => set.filter((item, i) => set.findIndex(comparator(item)) === i);
+
 export const setUtilsFactory = comparator => ({
   union: unionFactory(comparator),
   subtract: subtractFactory(comparator),
+  unique: uniqueFactory(comparator),
 });

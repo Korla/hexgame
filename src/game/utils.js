@@ -5,6 +5,8 @@ export const createPoint = (...pos) => {
 
 export const isSame = p1 => p2 => p1.coord === p2.coord;
 
+export const isNotSame = p1 => p2 => p1.coord !== p2.coord;
+
 export const getNeighbors = ({ x, y, z }) => {
   return [
     [0, -1, 1],
