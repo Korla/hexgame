@@ -21,5 +21,19 @@ export const availablePointsForInsect = {
     const neighboringInsectPoints = union(ownNeighboringPoints, allInsectsPoints);
     const neighborsOfNeighbors = flat(neighboringInsectPoints.map(({ x, y, z }) => getNeighbors(x, y, z)));
     return subtract(union(ownNeighboringPoints, neighborsOfNeighbors), neighboringInsectPoints);
+  },
+  spider: ({ G, currentInsect }) => {
+    // Union neighbors and neighbors of neighbors which are insects recursively three times, each time removing insects and the visited
+    const allInsectsPoints = G.insects.map(({ point }) => point);
+    let currentPoints = [currentInsect.point];
+    let visited = currentPoints;
+    for (let i = 0; i < 3; i++) {
+      const currentInsectNeighbors = flat(currentPoints.map(({ x, y, z }) => getNeighbors(x, y, z)));
+      const neighboringInsects = union(currentInsectNeighbors, allInsectsPoints);
+      const neighborsOfNeighbors = flat(neighboringInsects.map(({ x, y, z }) => getNeighbors(x, y, z)));
+      currentPoints = subtract(union(currentInsectNeighbors, neighborsOfNeighbors), allInsectsPoints, visited);
+      visited = [...visited, ...currentPoints];
+    }
+    return currentPoints;
   }
 }

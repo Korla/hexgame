@@ -8,6 +8,9 @@ const createInsects = () => [
   createInsect('ant'),
   createInsect('ant'),
   createInsect('ant'),
+  createInsect('spider'),
+  createInsect('spider'),
+  createInsect('spider'),
   createInsect('queen'),
 ];
 
