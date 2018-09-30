@@ -12,6 +12,9 @@ const createInsects = () => [
   createInsect('spider'),
   createInsect('spider'),
   createInsect('queen'),
+  createInsect('grasshopper'),
+  createInsect('grasshopper'),
+  createInsect('grasshopper'),
 ];
 
 const createPlayer = id => ({
