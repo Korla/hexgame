@@ -74,7 +74,7 @@ export const availablePointsForInsect = {
       let jumpVector = calculateVector(currentInsect.point, point);
       let jumpTarget = getPointByVector(currentInsect.point, jumpVector);
 
-      while(insectsPoints.some(insectPoint => isSame(insectPoint)(jumpTarget))) {
+      while(insectsPoints.some(isSame(jumpTarget))) {
         jumpTarget = getPointByVector(jumpTarget, jumpVector);
       }
       result.push(jumpTarget)
