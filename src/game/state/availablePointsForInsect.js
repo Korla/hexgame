@@ -1,4 +1,4 @@
-import {getNeighbors, isSame, isNotSame, createPoint, calculateVector, getPointByVector} from '../utils';
+import { getNeighbors, isSame, isNotSame, calculateVector, getPointByVector } from '../utils';
 import { setUtilsFactory } from '../setUtils';
 
 const { unique, subtract } = setUtilsFactory(isSame);
