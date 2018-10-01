@@ -4,7 +4,7 @@ const insectColors = {
   ant: 'blue',
   queen: 'yellow',
   spider: 'green',
-  grasshopper: '#7CFC00'
+  grasshopper: '#7CFC00',
 }
 
 export class Insect extends React.Component {
