@@ -40,11 +40,5 @@ export const areAllConnected = points => {
   return points.length === 0;
 }
 
-export const calculateVector = (source, destination) => {
-  return ({x: destination.x-source.x,
-    y: destination.y-source.y,
-    z: destination.z-source.z});
-}
-
 export const getPointByVector =(point, vector) =>
   createPoint(point.x+vector.x, point.y+vector.y, point.z+vector.z);

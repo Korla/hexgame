@@ -1,4 +1,4 @@
-import { getNeighbors, isSame, isNotSame, calculateVector, getPointByVector } from '../utils';
+import { getNeighbors, isSame, isNotSame, getPointByVector, createPoint } from '../utils';
 import { setUtilsFactory } from '../setUtils';
 
 const { unique, subtract } = setUtilsFactory(isSame);
@@ -64,22 +64,20 @@ export const availablePointsForInsect = {
   },
   grasshopper: ({G, currentInsect}) => {
     const insectsPoints = G.insects.map(({point}) => point);
-    const neighborInsectPoints = getNeighbors(currentInsect.point)
-      .filter(n =>  insectsPoints.some(i => isSame(n)(i)));
+    const isOccupiedByInsect = p => insectsPoints.some(isSame(p));
+    const getJumpVector = dest => src => createPoint(src.x-dest.x, src.y-dest.y,  src.z-dest.z);
 
-    const result = [];
-
-    for (let i = 0; i < neighborInsectPoints.length; i++) {
-      let point = neighborInsectPoints[i];
-      let jumpVector = calculateVector(currentInsect.point, point);
-      let jumpTarget = getPointByVector(currentInsect.point, jumpVector);
-
-      while(insectsPoints.some(isSame(jumpTarget))) {
-        jumpTarget = getPointByVector(jumpTarget, jumpVector);
-      }
-      result.push(jumpTarget)
-    }
-    return result;
+    return getNeighbors(currentInsect.point)
+      .filter(isOccupiedByInsect)
+      .map(getJumpVector(currentInsect.point))
+      .map(vector => {
+        let jumpTarget = getPointByVector(currentInsect.point, vector);
+        while(insectsPoints.some(isSame(jumpTarget))) {
+          jumpTarget = getPointByVector(jumpTarget, vector);
+        }
+        return jumpTarget;
+      });
   }
-}
+};
+
 
