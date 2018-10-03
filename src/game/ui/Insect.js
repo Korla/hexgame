@@ -3,7 +3,8 @@ import React from 'react';
 const insectColors = {
   ant: 'blue',
   queen: 'yellow',
-  spider: 'brown',
+  spider: 'green',
+  grasshopper: '#7CFC00',
 }
 
 export class Insect extends React.Component {

@@ -39,3 +39,6 @@ export const areAllConnected = points => {
   }
   return points.length === 0;
 }
+
+export const getPointByVector =(point, vector) =>
+  createPoint(point.x+vector.x, point.y+vector.y, point.z+vector.z);
