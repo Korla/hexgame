@@ -62,17 +62,17 @@ export const availablePointsForInsect = {
     }
     return currentPoints;
   },
-  grasshopper: ({G, currentInsect}) => {
-    const insectsPoints = G.insects.map(({point}) => point);
+  grasshopper: ({ G, currentInsect }) => {
+    const insectsPoints = G.insects.map(({ point }) => point);
     const isOccupiedByInsect = p => insectsPoints.some(isSame(p));
-    const getJumpVector = dest => src => createPoint(src.x-dest.x, src.y-dest.y,  src.z-dest.z);
+    const getJumpVector = dest => src => createPoint(src.x - dest.x, src.y - dest.y, src.z - dest.z);
 
     return getNeighbors(currentInsect.point)
       .filter(isOccupiedByInsect)
       .map(getJumpVector(currentInsect.point))
       .map(vector => {
         let jumpTarget = getPointByVector(currentInsect.point, vector);
-        while(insectsPoints.some(isSame(jumpTarget))) {
+        while (insectsPoints.some(isSame(jumpTarget))) {
           jumpTarget = getPointByVector(jumpTarget, vector);
         }
         return jumpTarget;
