@@ -1,4 +1,4 @@
 export const playerColors = [
-  '#17a',
-  '#a17'
+  '#303040',
+  '#f9f9f9'
 ];

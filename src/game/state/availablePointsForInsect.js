@@ -67,16 +67,21 @@ export const availablePointsForInsect = {
     const isOccupiedByInsect = p => insectsPoints.some(isSame(p));
     const getJumpVector = dest => src => createPoint(src.x - dest.x, src.y - dest.y, src.z - dest.z);
 
+    const log = suffix => data => { console.log(suffix, data); return data; }
     return getNeighbors(currentInsect.point)
+      .map(log('getNeighbors'))
       .filter(isOccupiedByInsect)
+      .map(log('isOccupiedByInsect'))
       .map(getJumpVector(currentInsect.point))
+      .map(log('getJumpVector'))
       .map(vector => {
         let jumpTarget = getPointByVector(currentInsect.point, vector);
         while (insectsPoints.some(isSame(jumpTarget))) {
           jumpTarget = getPointByVector(jumpTarget, vector);
         }
         return jumpTarget;
-      });
+      })
+      .map(log('result'));
   }
 };
 

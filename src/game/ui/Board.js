@@ -23,10 +23,18 @@ const styles = {
   move: {
     padding: 5,
     border: '1px solid black',
+    backgroundColor: 'grey',
   },
   clickableMove: {
     cursor: 'pointer',
+    backgroundColor: 'white',
   }
+}
+const getCellColor_old = HexGrid.prototype._getCellColor;
+
+HexGrid.prototype._getCellColor = function(...coords) {
+  const color = getCellColor_old.bind(this)(...coords);
+  return color !== 'white' ? color : '#ccccd0';
 }
 
 export class Board extends React.Component {

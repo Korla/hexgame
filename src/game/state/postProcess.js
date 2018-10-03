@@ -6,9 +6,9 @@ const { subtract } = setUtilsFactory(isSame);
 
 const setColorMap = G => {
   const colorMap = [
-    ...G.availablePoints.map(({ coord }) => ({ coord, color: '#ccc' })),
+    ...G.availablePoints.map(({ coord }) => ({ coord, color: '#dd666f' })),
     ...G.insects.map(({ player, point: { coord } }) => ({ coord, color: playerColors[player] })),
-    ...(G.currentInsect && G.currentInsect.point ? [{ coord: G.currentInsect.point.coord, color: '#777' }] : []),
+    ...(G.currentInsect && G.currentInsect.point ? [{ coord: G.currentInsect.point.coord, color: '#8d767f' }] : []),
   ]
     .reduce((colorMap, { coord, color }) => {
       colorMap[coord] = color;
@@ -68,11 +68,6 @@ const handleGameover = G => {
     gameover,
   }
 }
-
-// const log = G => {
-//   console.log('salmon', JSON.stringify(G.insects.map(({ point }) => point)));
-//   return G;
-// }
 
 const chain = (...fns) => res => fns.reduce((res, fn) => fn(res), res);
 
